@@ -1,5 +1,6 @@
 #include "menu.h"
 #include "print.h"
+#include "pixelbuffer.h"
 #include "digitalWriteFast.h"
 #include "font.h"
 
@@ -56,6 +57,7 @@ Port FBh Write - Printer Output
   7    Pixel Output   (0=White/Silver, 1=Black)
 */
 namespace Bus {
+#if defined(__AVR_ATmega2560__)
   const int A2 = 21;
   const int A7 = 28;
 
@@ -71,6 +73,25 @@ namespace Bus {
   const int D5 = 45;
   const int D6 = 46;
   const int D7 = A13;
+#elif defined(__AVR_ATmega328P__) 
+  const int A2 = A0;
+  const int A7 = A1;
+
+  const int WR = 12;
+  const int RD = 11;
+  const int IORQ = 10;
+
+  const int D0 = 2;
+  const int D1 = 3;
+  const int D2 = 4;
+  const int D3 = 5;
+  const int D4 = 6;
+  const int D5 = 7;
+  const int D6 = 8;
+  const int D7 = 9;
+#else
+  #error Unsupported board
+#endif
 }
 
 // Read data
@@ -82,10 +103,6 @@ const byte IN_PRINTER_ON_PAPER = Bus::D7;
 const byte OUT_PRINTER_MOTOR_SLOW = Bus::D1;
 const byte OUT_PRINTER_MOTOR_OFF = Bus::D2;
 const byte OUT_PRINTER_PIXEL_ON = Bus::D7;
-
-const int rows = 8;
-const int columns = 256;
-byte pixels[rows][columns] = {};
 
 void writetext(char* text, int column = 0);
 
@@ -123,15 +140,11 @@ void loop() {
   runcmd_P(title, commands);
 }
 
-void setpixel(int row, int column, bool state) {
-  pixels[row][column] = state;
-}
-
 void writechar(char ch, int column) {
   byte bitmask = 1<<(charwidth-1);
   for(int row=0; row<charheight; row++) {
     for(int bitcount=0; bitcount<charwidth; bitcount++) {
-      bool isset = charset[ch-' '][row] & (bitmask >> bitcount);
+      bool isset = getfontmask(ch, row) & (bitmask >> bitcount);
       setpixel(row, column+bitcount, isset);
     }
   }
@@ -141,14 +154,6 @@ void writetext(char* text, int column = 0) {
   while(char ch = *text++) {
     writechar(ch, column);
     column += charwidth+2;
-  }
-}
-
-void clearpixels() {
-  for(int row=0; row<rows; row++) {
-    for (byte column = 0; column < columns-8; column++) {
-      setpixel(row, column, false);
-    }
   }
 }
 
@@ -258,17 +263,17 @@ void printpixels() {
   //TODO: we should start out fast and slow down for the last two lines
   //motorfast(); 
   waitfornopaper();
-  byte* ppixel = (byte*) pixels;
-  for (byte row = 0; row < rows; row ++) {
+  seekpixel();
+  for (byte row = 0; row < rows; row++) {
     waitforpaper();
     bool pixelon = false;
     for (byte column = 0; column < columns-8; column++) {
       outpixel(pixelon);
-      pixelon = *ppixel++;
+      pixelon = readpixel();
       while(!isready());
       outpixel(pixelon);
      }
-    ppixel += 8;
+    skippixel(8);
     outpixel(false);
   }
   readtoggle();
