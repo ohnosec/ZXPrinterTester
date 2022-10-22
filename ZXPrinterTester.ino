@@ -5,6 +5,7 @@
 #include "digitalWriteFast.h"
 #include "font.h"
 #include "font7x5.h"
+#include "fontts2068.h"
 
 const char menuPrinterStatus[] PROGMEM    = "Printer status";
 const char menuPrinterMotorOn[] PROGMEM   = "Printer motor on";
@@ -16,6 +17,8 @@ const char menuWriteBlocks[] PROGMEM      = "Write blocks";
 const char menuWriteFox[] PROGMEM         = "Write quick fox";
 const char menuWriteHello[] PROGMEM       = "Write hello";
 const char menuWriteMessage[] PROGMEM     = "Write message";
+const char menuSetFontTs2068[] PROGMEM    = "Set font to TS2068";
+const char menuSetFontDefault[] PROGMEM   = "Set font to default (7x5)";
 
 void cmdPrinterStatus();
 void cmdPrinterMotorOn();
@@ -27,6 +30,8 @@ void cmdWriteBlocks();
 void cmdWriteFox();
 void cmdWriteHello();
 void cmdWriteMessage();
+void cmdSetFontTs2068();
+void cmdSetFontDefault();
 
 const char title[] PROGMEM = "ZX printer tester";
 
@@ -40,6 +45,8 @@ const prog_commandtype commands[] PROGMEM = {
   { 'F', menuWriteFox, cmdWriteFox },
   { 'H', menuWriteHello, cmdWriteHello },
   { 'M', menuWriteMessage, cmdWriteMessage },
+  { 'T', menuSetFontTs2068, cmdSetFontTs2068 },
+  { 'D', menuSetFontDefault, cmdSetFontDefault },
   { '\0' } // DONT REMOVE THIS "END OF MENU" MARKER
 };
 
@@ -346,4 +353,16 @@ void cmdWriteMessage() {
   writetext(message);
   
   printpixels();
+}
+
+void cmdSetFontTs2068() {
+  print_P(PSTR("Setting font to TS2068\r\n"));
+  homecursor();
+  setfont(&fontts2068);
+}
+
+void cmdSetFontDefault() {
+  print_P(PSTR("Setting font to default\r\n"));
+  homecursor();
+  setfont(&font7x5);
 }

@@ -870,4 +870,4 @@ const byte font7x5bitmaps[][7] PROGMEM = {
   },
 };
 
-const Font font7x5 PROGMEM = {7, 5, 1, (byte*) font7x5bitmaps};
+const Font font7x5 PROGMEM = {7, 5, 2, (byte*) font7x5bitmaps};
