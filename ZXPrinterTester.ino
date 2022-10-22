@@ -194,7 +194,12 @@ inline void writetoggle() {
 }
 
 inline void outpixel(bool ison) {
-  digitalWriteFast(OUT_PRINTER_PIXEL_ON, ison ? HIGH : LOW);
+  if(ison) { 
+    digitalWriteFast(OUT_PRINTER_PIXEL_ON, HIGH);
+  } else {
+    digitalWriteFast(OUT_PRINTER_PIXEL_ON, LOW);
+  }
+  _delay_us(2); // needs to be stable for a couple of microseconds, not sure why
   pinModeFast(OUT_PRINTER_PIXEL_ON, OUTPUT);
   writetoggle();
   pinModeFast(OUT_PRINTER_PIXEL_ON, INPUT);
@@ -267,17 +272,15 @@ void printpixels() {
   for (byte row = 0; row < rows; row++) {
     waitforpaper();
     bool pixelon = false;
-    for (byte column = 0; column < columns-8; column++) {
+    for (byte column = 0; column < columns-1; column++) {
       outpixel(pixelon);
       pixelon = readpixel();
       while(!isready());
       outpixel(pixelon);
      }
-    skippixel(8);
+    skippixel(1);
     outpixel(false);
   }
-  readtoggle();
-  motoroff();
   readtoggle();
   motoroff();
 }
