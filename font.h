@@ -1,6 +1,10 @@
 #pragma once
 
-const int charheight = 7;
-const int charwidth = 5;
+#include <Arduino.h>
 
-byte getfontmask(char ch, byte row);
+typedef struct {
+  byte charheight;
+  byte charwidth;
+  byte chargap;
+  byte* bitmap;
+} Font;

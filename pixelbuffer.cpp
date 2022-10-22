@@ -18,6 +18,7 @@ static inline byte makemask(int column) {
 }
 
 void setpixel(int row, int column, bool state) {
+  if (row>=rows || column>=columns) return;
   byte index = makeindex(row, column);
   byte mask = makemask(column);
   if (state)

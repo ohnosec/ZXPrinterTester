@@ -1,14 +1,9 @@
+#pragma once
+
 #include <Arduino.h>
 #include "font.h"
 
-extern const byte charset[][7] PROGMEM;
-
-byte getfontmask(char ch, byte row) {
-  if (ch<' ' || ch>127) return 0;
-  return pgm_read_byte(&charset[ch-' '][row]);
-}
-
-const byte charset[][7] PROGMEM = {
+const byte font7x5bitmaps[][7] PROGMEM = {
   { // 0x20   space
     0b00000000,
     0b00000000,
@@ -874,3 +869,5 @@ const byte charset[][7] PROGMEM = {
     0b00000000,
   },
 };
+
+const Font font7x5 PROGMEM = {7, 5, 1, (byte*) font7x5bitmaps};

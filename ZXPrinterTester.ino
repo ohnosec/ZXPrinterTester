@@ -1,8 +1,10 @@
 #include "menu.h"
 #include "print.h"
 #include "pixelbuffer.h"
+#include "pixelprint.h"
 #include "digitalWriteFast.h"
 #include "font.h"
+#include "font7x5.h"
 
 const char menuPrinterStatus[] PROGMEM    = "Printer status";
 const char menuPrinterMotorOn[] PROGMEM   = "Printer motor on";
@@ -133,28 +135,14 @@ void setup() {
   pinModeFast(OUT_PRINTER_MOTOR_SLOW, OUTPUT);
   pinModeFast(OUT_PRINTER_MOTOR_OFF, OUTPUT);
 
+  setpixelfunc(&setpixel);
+  setfont(&font7x5);
+
   clearpixels();
 }
 
 void loop() {
   runcmd_P(title, commands);
-}
-
-void writechar(char ch, int column) {
-  byte bitmask = 1<<(charwidth-1);
-  for(int row=0; row<charheight; row++) {
-    for(int bitcount=0; bitcount<charwidth; bitcount++) {
-      bool isset = getfontmask(ch, row) & (bitmask >> bitcount);
-      setpixel(row, column+bitcount, isset);
-    }
-  }
-}
-
-void writetext(char* text, int column = 0) {
-  while(char ch = *text++) {
-    writechar(ch, column);
-    column += charwidth+2;
-  }
 }
 
 void plotsquares() {
@@ -323,10 +311,9 @@ void cmdPrintBuffer() {
 void cmdWriteAlphabet() {
   clearpixels();
 
-  int column=0;
+  homecursor();
   for(char ch='A'; ch<='Z'; ch++) {
-    writechar(ch, column);
-    column += charwidth+2;
+    writechar(ch);
   }
 
   printpixels();
