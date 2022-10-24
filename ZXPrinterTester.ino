@@ -6,6 +6,7 @@
 #include "font.h"
 #include "font7x5.h"
 #include "fontts2068.h"
+#include "fontamstradcpc.h"
 
 const char menuPrinterStatus[] PROGMEM    = "Printer status";
 const char menuPrinterMotorOn[] PROGMEM   = "Printer motor on";
@@ -18,6 +19,7 @@ const char menuWriteFox[] PROGMEM         = "Write quick fox";
 const char menuWriteHello[] PROGMEM       = "Write hello";
 const char menuWriteMessage[] PROGMEM     = "Write message";
 const char menuSetFontTs2068[] PROGMEM    = "Set font to TS2068";
+const char menuSetFontCpc[] PROGMEM       = "Set font to Amstrad CPC";
 const char menuSetFontDefault[] PROGMEM   = "Set font to default (7x5)";
 
 void cmdPrinterStatus();
@@ -32,6 +34,7 @@ void cmdWriteHello();
 void cmdWriteMessage();
 void cmdSetFontTs2068();
 void cmdSetFontDefault();
+void cmdSetFontCpc();
 
 const char title[] PROGMEM = "ZX printer tester";
 
@@ -46,6 +49,7 @@ const prog_commandtype commands[] PROGMEM = {
   { 'H', menuWriteHello, cmdWriteHello },
   { 'M', menuWriteMessage, cmdWriteMessage },
   { 'T', menuSetFontTs2068, cmdSetFontTs2068 },
+  { 'C', menuSetFontCpc, cmdSetFontCpc },
   { 'D', menuSetFontDefault, cmdSetFontDefault },
   { '\0' } // DONT REMOVE THIS "END OF MENU" MARKER
 };
@@ -359,6 +363,12 @@ void cmdSetFontTs2068() {
   print_P(PSTR("Setting font to TS2068\r\n"));
   homecursor();
   setfont(&fontts2068);
+}
+
+void cmdSetFontCpc() {
+  print_P(PSTR("Setting font to Amstrad CPC\r\n"));
+  homecursor();
+  setfont(&fontamstradcpc);
 }
 
 void cmdSetFontDefault() {
