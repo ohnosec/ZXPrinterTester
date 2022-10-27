@@ -8,6 +8,8 @@
 #include "fontts2068.h"
 #include "fontamstradcpc.h"
 
+#define ZXPSVERSION 2
+
 const char menuPrinterStatus[] PROGMEM    = "Printer status";
 const char menuPrinterMotorOn[] PROGMEM   = "Printer motor on";
 const char menuPrinterMotorOff[] PROGMEM  = "Printer motor off";
@@ -70,41 +72,56 @@ Port FBh Write - Printer Output
   7    Pixel Output   (0=White/Silver, 1=Black)
 */
 namespace Bus {
-#if defined(__AVR_ATmega2560__)
-  const int A2 = 21;
-  const int A7 = 28;
-
-  const int WR = 36;
-  const int RD = 37;
-  const int IORQ = 38;
-
-  const int D0 = 49;
-  const int D1 = 48;
-  const int D2 = 47;
-  const int D3 = 44;
-  const int D4 = 43;
-  const int D5 = 45;
-  const int D6 = 46;
-  const int D7 = A13;
-#elif defined(__AVR_ATmega328P__) 
-  const int A2 = A0;
-  const int A7 = A1;
-
-  const int WR = 12;
-  const int RD = 11;
-  const int IORQ = 10;
-
-  const int D0 = 2;
-  const int D1 = 3;
-  const int D2 = 4;
-  const int D3 = 5;
-  const int D4 = 6;
-  const int D5 = 7;
-  const int D6 = 8;
-  const int D7 = 9;
-#else
-  #error Unsupported board
-#endif
+  #if ZXPSVERSION < 2
+    #if defined(__AVR_ATmega2560__)
+      const int A2 = 21;
+      const int A7 = 28;
+    
+      const int WR = 36;
+      const int RD = 37;
+      const int IORQ = 38;
+    
+      const int D0 = 49;
+      const int D1 = 48;
+      const int D2 = 47;
+      const int D3 = 44;
+      const int D4 = 43;
+      const int D5 = 45;
+      const int D6 = 46;
+      const int D7 = A13;
+    #elif defined(__AVR_ATmega328P__) 
+      const int A2 = A0;
+      const int A7 = A1;
+    
+      const int WR = 12;
+      const int RD = 11;
+      const int IORQ = 10;
+    
+      const int D0 = 2;
+      const int D1 = 3;
+      const int D2 = 4;
+      const int D3 = 5;
+      const int D4 = 6;
+      const int D5 = 7;
+      const int D6 = 8;
+      const int D7 = 9;
+    #else
+      #error Unsupported board
+    #endif
+  #else
+    #if defined(__AVR_ATmega328P__) 
+      const int WR = 9;
+      const int RD = 8;
+    
+      const int D0 = 3;
+      const int D1 = 4;
+      const int D2 = 5;
+      const int D6 = 6;
+      const int D7 = 7;
+    #else
+      #error Unsupported board
+    #endif
+  #endif
 }
 
 // Read data
@@ -122,17 +139,21 @@ void writetext(char* text, int column = 0);
 void setup() {
   Serial.begin(9600);
 
-  digitalWriteFast(Bus::A2, LOW);
-  digitalWriteFast(Bus::A7, HIGH);
+  #if ZXPSVERSION < 2
+    digitalWriteFast(Bus::A2, LOW);
+    digitalWriteFast(Bus::A7, HIGH);
+    digitalWriteFast(Bus::IORQ, LOW);
+  #endif
   digitalWriteFast(Bus::WR, HIGH);
   digitalWriteFast(Bus::RD, HIGH);
-  digitalWriteFast(Bus::IORQ, LOW);
 
-  pinModeFast(Bus::A2, OUTPUT);
-  pinModeFast(Bus::A7, OUTPUT);
+  #if ZXPSVERSION < 2
+    pinModeFast(Bus::A2, OUTPUT);
+    pinModeFast(Bus::A7, OUTPUT);
+    pinModeFast(Bus::IORQ, OUTPUT);
+  #endif
   pinModeFast(Bus::WR, OUTPUT);
   pinModeFast(Bus::RD, OUTPUT);
-  pinModeFast(Bus::IORQ, OUTPUT);
 
   digitalWriteFast(IN_PRINTER_READY, LOW);
   digitalWriteFast(IN_PRINTER_NOT_DETECTED, LOW);
